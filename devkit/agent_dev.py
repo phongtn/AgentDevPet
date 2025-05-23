@@ -11,13 +11,11 @@ from agno.tools.reasoning import ReasoningTools
 from agno.tools.shell import ShellTools
 from .prompt import AGENT_DEV_DESCRIPTION, AGENT_DEV_INSTRUCTION
 
-
 def load_local_storage():
     return SqliteStorage(
         table_name="agent_dev_sessions",
         db_file="../data.db"
     )
-
 
 # docker_tools = DockerTools(
 #         enable_container_management=True,
