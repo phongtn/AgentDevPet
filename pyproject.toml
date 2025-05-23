@@ -1,0 +1,23 @@
+[project]
+name = "dev-kit"
+version = "0.1.0"
+description = "The utilities toolkit for developer"
+authors = [
+    { name = "PhongTn", email = "phongtn.group1@gmail.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "agno[aws]==1.3.5",
+    "pycountry",
+    "openai",
+    "googlesearch-python",
+    "google-genai",
+    "chainlit"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
