@@ -34,3 +34,5 @@ venv*
 .log
 
 .devcontainer
+
+.chainlit
