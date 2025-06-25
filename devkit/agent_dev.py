@@ -9,23 +9,25 @@ from agno.storage.sqlite import SqliteStorage
 from agno.tools.file import FileTools
 from agno.tools.giphy import GiphyTools
 from agno.tools.googlesearch import GoogleSearchTools
-from agno.tools.python import PythonTools
 from agno.tools.reasoning import ReasoningTools
 from agno.tools.shell import ShellTools
-from .prompt import AGENT_DEV_DESCRIPTION, AGENT_DEV_INSTRUCTION
+
+from .prompt import AGENT_DEV_DESCRIPTION
 from .tools.pexels import PexelsTools
 
 
 def load_local_storage():
     return SqliteStorage(
         table_name="agent_dev_sessions",
-        db_file="../data.db"
+        db_file="data.db"
     )
+
 
 def load_agent_memory():
     return Memory(
-        db=SqliteMemoryDb(table_name="memory", db_file="../data.db")
+        db=SqliteMemoryDb(table_name="memory", db_file="data.db")
     )
+
 
 # docker_tools = DockerTools(
 #         enable_container_management=True,
@@ -54,17 +56,19 @@ def build_agent(
         model=model,
         memory=load_agent_memory(),
         enable_agentic_memory=True,
+        enable_user_memories=True,
+        # reasoning_model=DeepSeek(id="deepseek-reasoner"),
         tools=[GoogleSearchTools(),
                ShellTools(),
-               PythonTools(),
                FileTools(),
                GiphyTools(),
                PexelsTools(),
                # DockerTools(),
-               ReasoningTools(think=True, analyze=True)],
+               ReasoningTools(think=True, analyze=True)
+               ],
         storage=load_local_storage(),
         description=dedent(AGENT_DEV_DESCRIPTION),
-        instructions=dedent(AGENT_DEV_INSTRUCTION),
+        instructions=dedent(AGENT_DEV_DESCRIPTION),
         additional_context=additional_context,
         markdown=True,
         add_datetime_to_instructions=True,
