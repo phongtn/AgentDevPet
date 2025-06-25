@@ -36,3 +36,5 @@ venv*
 .devcontainer
 
 .chainlit
+
+.db
