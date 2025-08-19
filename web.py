@@ -18,4 +18,3 @@ async def main(message: cl.Message):
         await msg.stream_token(chunk.content)
 
     await msg.update()
-

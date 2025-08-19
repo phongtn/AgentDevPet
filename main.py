@@ -1,8 +1,6 @@
 import uuid
 
-from agno.models.deepseek import DeepSeek
 from agno.models.openai import OpenAIChat
-from qdrant_client.http import model
 
 from devkit.agent_dev import build_agent
 
@@ -12,8 +10,8 @@ def wakeup_agent():
     # model=DeepSeek()
     return build_agent(model=model,
                        user_id="phong",
-                       session_id="phong" + str(uuid.uuid1()),
-                       debug_mode=False)
+                       session_id=str(uuid.uuid1()),
+                       debug_mode=True)
 
 
 def chat_with_agent(agent):
