@@ -9,12 +9,13 @@ license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "agno[aws]==1.7.5",
+    "agno[aws]==2.0.2",
     "pycountry",
     "openai",
     "googlesearch-python",
     "google-genai",
-    "chainlit"
+    "chainlit",
+    "sqlalchemy"
 ]
 
 
