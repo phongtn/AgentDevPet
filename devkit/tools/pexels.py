@@ -3,9 +3,10 @@ from typing import Optional, Union
 
 import httpx
 from agno.agent import Agent
-from agno.media import ImageArtifact
+from agno.media import Image
 from agno.team.team import Team
 from agno.tools import Toolkit
+from agno.tools.function import ToolResult
 from agno.utils.log import logger
 
 
@@ -22,7 +23,7 @@ class PexelsTools(Toolkit):
             logger.error("No Pexels API key provided")
         self.register(self.search_photos)
 
-    def search_photos(self, agent: Union[Agent, Team], query: str, max_results: int = 3, orientation: str = "landscape", color: Optional[str] = None) -> str:
+    def search_photos(self, agent: Union[Agent, Team], query: str, max_results: int = 3, orientation: str = "landscape", color: Optional[str] = None) -> ToolResult:
         """
         Search for high-quality photos on Pexels matching a given text description.
 
@@ -51,7 +52,7 @@ class PexelsTools(Toolkit):
                     red, orange, yellow, green, turquoise, blue, violet, pink, brown, black, gray, white, or any hexadecimal color code (e.g., #ffffff).
 
         Returns:
-            str: A message containing the URLs of the found photos, or "No photo found" if the search
+            ToolResult: Containing the URLs of the found photos, or "No photo found" if the search
                  failed or no photos matched the query.
 
         Image Behavior:
@@ -84,6 +85,7 @@ class PexelsTools(Toolkit):
             "per_page": max_results,
             "color": color
         }
+        image_artifacts = []
 
         ## orientation Desired photo orientation. The current supported orientations are: landscape, portrait or square.
         try:
@@ -99,13 +101,19 @@ class PexelsTools(Toolkit):
 
                 alt_text = photo["alt"]
                 photo_urls.append(original_image)
-                agent.add_image(ImageArtifact(id=media_id, url=original_image, alt_text=alt_text, revised_prompt=query))
+                image_artifact = Image(id=media_id, url=original_image, alt_text=alt_text, revised_prompt=query)
+                image_artifacts.append(image_artifact)
 
-            return f"These are the found photos {photo_urls}"
+            if image_artifacts:
+                return ToolResult(content=f"Found {len(photo_urls)} Photo(s): {photo_urls}", images=image_artifacts)
+            else:
+                return ToolResult(content="No photo found")
+
+
 
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+            return ToolResult(content=f"HTTP error occurred: {e.response.status_code}")
         except Exception as e:
             logger.error(f"An error occurred: {e}")
-
-        return "No photo found"
+            return ToolResult(content=f"An error occurred: {e}")
