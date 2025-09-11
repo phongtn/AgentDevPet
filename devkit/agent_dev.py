@@ -1,40 +1,28 @@
+import uuid
 from textwrap import dedent
 from typing import Optional
 
 from agno.agent import Agent
-from agno.memory.v2 import Memory
-from agno.memory.v2.db.sqlite import SqliteMemoryDb
+from agno.db.sqlite import SqliteDb
 from agno.models.base import Model
-from agno.storage.sqlite import SqliteStorage
+from agno.models.openai import OpenAIChat
+from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.file import FileTools
 from agno.tools.giphy import GiphyTools
 from agno.tools.googlesearch import GoogleSearchTools
 from agno.tools.reasoning import ReasoningTools
 from agno.tools.shell import ShellTools
 
-from .prompt import AGENT_DEV_DESCRIPTION
+from .prompt import AGENT_DEV_DESCRIPTION, AGENT_DEV_INSTRUCTION
 from .tools.pexels import PexelsTools
 
 
-def load_local_storage():
-    return SqliteStorage(
-        table_name="agent_dev_sessions",
-        db_file="data.db"
+def init_local_storage():
+    return SqliteDb(
+        db_file="data.db",
+        memory_table="memories"
     )
 
-
-def load_agent_memory():
-    return Memory(
-        db=SqliteMemoryDb(table_name="memory", db_file="data.db")
-    )
-
-
-# docker_tools = DockerTools(
-#         enable_container_management=True,
-#         enable_image_management=True,
-#         enable_volume_management=True,
-#         enable_network_management=True,
-#     )
 
 def build_agent(
         model: Model,
@@ -42,38 +30,35 @@ def build_agent(
         session_id: Optional[str] = None,
         debug_mode: bool = True,
 ) -> Agent:
-    additional_context = ""
-    if user_id:
-        additional_context += "<context>"
-        additional_context += f"You are interacting with the user: {user_id}"
-        additional_context += "</context>"
+
 
     return Agent(
-        name="Dev Pet",
-        agent_id="dev_pet",
+        name="DEV-PET",
         user_id=user_id,
         session_id=session_id,
         model=model,
-        memory=load_agent_memory(),
-        enable_agentic_memory=True,
-        enable_user_memories=True,
-        # reasoning_model=DeepSeek(id="deepseek-reasoner"),
-        tools=[GoogleSearchTools(),
-               ShellTools(),
-               FileTools(),
-               GiphyTools(),
-               PexelsTools(),
-               # DockerTools(),
-               ReasoningTools(think=True, analyze=True)
-               ],
-        storage=load_local_storage(),
+        db=init_local_storage(),
+        tools=[
+            DuckDuckGoTools(),
+            ShellTools(),
+            FileTools()
+        ],
         description=dedent(AGENT_DEV_DESCRIPTION),
-        instructions=dedent(AGENT_DEV_DESCRIPTION),
-        additional_context=additional_context,
+        instructions=dedent(AGENT_DEV_INSTRUCTION),
+        add_history_to_context=True,
+        num_history_runs=3,
+        add_datetime_to_context=True,
+        enable_agentic_memory=True,
+
         markdown=True,
-        add_datetime_to_instructions=True,
-        add_history_to_messages=True,
-        num_history_responses=3,
         read_chat_history=True,
         debug_mode=debug_mode,
     )
+
+
+def wakeup_agent():
+    model = OpenAIChat(id="gpt-4.1-mini")
+    return build_agent(model=model,
+                       user_id="John",
+                       session_id=str(uuid.uuid1()),
+                       debug_mode=True)
