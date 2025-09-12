@@ -41,15 +41,14 @@ def build_agent(
         tools=[
             DuckDuckGoTools(),
             ShellTools(),
+            PexelsTools(),
             FileTools()
         ],
         description=dedent(AGENT_DEV_DESCRIPTION),
         instructions=dedent(AGENT_DEV_INSTRUCTION),
         add_history_to_context=True,
         num_history_runs=3,
-        add_datetime_to_context=True,
         enable_agentic_memory=True,
-
         markdown=True,
         read_chat_history=True,
         debug_mode=debug_mode,
